@@ -83,8 +83,9 @@ const Login = () => {
           credentials.password === DUMMY_USER.password
         ) {
           userCtxt.login({
-            usuario: credentials.username,
-            password: credentials.password,
+            usuario: "Test user",
+            email: credentials.username,
+            token: "token010203040506",
           });
 
           navigate("/home", { replace: true });
