@@ -1,11 +1,12 @@
 # Login app demo
 
-This project consists of two pages, the home page(its protected) and the login page for granting access.
+This project consists of two pages, the Home Page (its protected) and the Login Page for granting access.
 
 You only have one dummy user:
 
-user: test@test.com
-pass: test123
+#### user: test@test.com
+
+#### pass: test123
 
 If you want to access any path it would redirect you to Home Page.
 
@@ -13,7 +14,7 @@ If you're not logged in, it would redirect you to Login Page
 
 When logging in, it takes 2 seconds faking an API call.
 
-## Intructions
+## Instructions
 
 Clone the project in your local machine
 
