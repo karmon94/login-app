@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
   Box,
   TextField,
@@ -7,8 +7,8 @@ import {
   Input,
   InputAdornment,
   IconButton,
-  Button,
 } from "@mui/material";
+import LoadingButton from "@mui/lab/LoadingButton/LoadingButton";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import HttpsIcon from "@mui/icons-material/Https";
 import Visibility from "@mui/icons-material/Visibility";
@@ -16,28 +16,46 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import isEmail from "validator/lib/isEmail";
 
 import "./Login.css";
+import { UserContext } from "../../app/UserContextProvider";
+import { useNavigate } from "react-router-dom";
+
+const DUMMY_USER = { username: "test@test.com", password: "test123" };
 
 const Login = () => {
+  const userCtxt = useContext(UserContext);
+  const navigate = useNavigate();
+
   const [credentials, setCredentials] = useState({
     username: "",
     password: "",
     showPassword: false,
+    userValid: true,
+    messageError: "",
+    loading: false,
   });
-
-  const [userValidator, setUserValidator] = useState(true);
-  const [passValidator, setPassValidator] = useState(true);
-  const [messageError, setMessageError] = useState(" ");
 
   const handleChange = (prop) => (event) => {
     if (prop === "username") {
       if (isEmail(event.target.value)) {
-        setUserValidator(true);
+        setCredentials({
+          ...credentials,
+          username: event.target.value,
+          userValid: true,
+        });
       } else {
-        setUserValidator(false);
+        setCredentials({
+          ...credentials,
+          username: event.target.value,
+          userValid: false,
+        });
       }
+    } else {
+      setCredentials({
+        ...credentials,
+        password: event.target.value,
+        messageError: "",
+      });
     }
-    setCredentials({ ...credentials, [prop]: event.target.value });
-    setMessageError("");
   };
 
   const handleClickShowPassword = () => {
@@ -53,11 +71,31 @@ const Login = () => {
 
   const onSubmitHandle = (e) => {
     e.preventDefault();
-    if (userValidator && passValidator) {
-      // INICIO DE SESION
-      //SI NO HAY ERROR HACEMOS UN NAVIGATE
-      //SI HAY ERROR EN CREDENCIALES SE MUESTRA EL MENSAJE
-      setMessageError("Usuario/Contraseña incorrectos");
+    if (credentials.userValid) {
+      setCredentials({
+        ...credentials,
+        loading: true,
+      });
+
+      setTimeout(() => {
+        if (
+          credentials.username === DUMMY_USER.username &&
+          credentials.password === DUMMY_USER.password
+        ) {
+          userCtxt.login({
+            usuario: credentials.username,
+            password: credentials.password,
+          });
+
+          navigate("/home", { replace: true });
+        } else {
+          setCredentials({
+            ...credentials,
+            loading: false,
+            messageError: "Email/Password incorrectos",
+          });
+        }
+      }, 2000);
     }
   };
 
@@ -77,7 +115,7 @@ const Login = () => {
         >
           <AccountCircleIcon sx={{ color: "action.active" }} />
           <TextField
-            error={!userValidator}
+            error={!credentials.userValid}
             required
             label="Email"
             variant="standard"
@@ -132,12 +170,16 @@ const Login = () => {
           </FormControl>
         </Box>
 
-        <Button sx={{ marginTop: "10px" }} variant="contained" type="submit">
+        <LoadingButton
+          type="submit"
+          loading={credentials.loading}
+          variant="contained"
+        >
           LOGIN
-        </Button>
+        </LoadingButton>
 
         <div className="errorMessage">
-          <p>{messageError}</p>
+          <p>{credentials.messageError}</p>
         </div>
       </form>
 
